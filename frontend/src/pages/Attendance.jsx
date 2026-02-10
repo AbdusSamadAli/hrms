@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { markAttendance, getAttendance } from "../api/api";
 
 export default function Attendance() {
@@ -22,6 +22,12 @@ export default function Attendance() {
     const data = await getAttendance(employeeId);
     setRecords(data);
   }
+
+  useEffect(() => {
+  if (employeeId) {
+    loadAttendance();
+  }
+}, [employeeId]);
 
   return (
     <div className="max-w-5xl mx-auto p-6">
