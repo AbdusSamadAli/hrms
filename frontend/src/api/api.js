@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://hrms-1-1lm3.onrender.com";
 
 export async function getEmployees() {
   const res = await fetch(`${BASE_URL}/employees`);
