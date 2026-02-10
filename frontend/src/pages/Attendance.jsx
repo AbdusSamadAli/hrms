@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { markAttendance, getAttendance } from "../api/api";
 
 export default function Attendance() {
-  
   const [employeeId, setEmployeeId] = useState(
     localStorage.getItem("employeeId") || ""
   );
@@ -11,11 +10,11 @@ export default function Attendance() {
   const [records, setRecords] = useState([]);
   const [error, setError] = useState("");
 
-  async function loadAttendance() {
+  async function loadAttendance(id) {
     try {
-      const data = await getAttendance(employeeId);
+      const data = await getAttendance(id);
       setRecords(data);
-    } catch (e) {
+    } catch {
       setError("Failed to load attendance");
     }
   }
@@ -23,22 +22,17 @@ export default function Attendance() {
   async function submit() {
     setError("");
     try {
-      await markAttendance({
-        employee_id: employeeId,
-        date,
-        status,
-      });
-      await loadAttendance();
+      await markAttendance({ employee_id: employeeId, date, status });
+      loadAttendance(employeeId);
     } catch (e) {
       setError(e.message);
     }
   }
-  
+
   useEffect(() => {
     if (employeeId) {
-      loadAttendance();
-    } else {
-      setRecords([]);
+      localStorage.setItem("employeeId", employeeId);
+      loadAttendance(employeeId);
     }
   }, [employeeId]);
 
@@ -60,19 +54,14 @@ export default function Attendance() {
             className="border rounded p-2"
             placeholder="Employee ID"
             value={employeeId}
-            onChange={(e) => {
-              setEmployeeId(e.target.value);
-              localStorage.setItem("employeeId", e.target.value);
-            }}
+            onChange={(e) => setEmployeeId(e.target.value)}
           />
-
           <input
             type="date"
             className="border rounded p-2"
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
-
           <select
             className="border rounded p-2"
             value={status}
@@ -81,11 +70,9 @@ export default function Attendance() {
             <option>Present</option>
             <option>Absent</option>
           </select>
-
           <button
             onClick={submit}
-            disabled={!employeeId || !date}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 disabled:opacity-50"
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded px-4"
           >
             Mark
           </button>
@@ -98,10 +85,7 @@ export default function Attendance() {
 
           <ul className="space-y-2">
             {records.map((r) => (
-              <li
-                key={r.id}
-                className="flex justify-between border rounded p-2"
-              >
+              <li key={r.id} className="flex justify-between border rounded p-2">
                 <span>{r.date}</span>
                 <span
                   className={
