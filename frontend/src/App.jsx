@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Employees from "./pages/Employees";
 import Attendance from "./pages/Attendance";
 
 function App() {
-  const [page, setPage] = useState("employees");
-
   return (
     <>
-      <Navbar page={page} setPage={setPage} />
-      {page === "employees" ? <Employees /> : <Attendance />}
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Navigate to="/employees" />} />
+        <Route path="/employees" element={<Employees />} />
+        <Route path="/attendance" element={<Attendance />} />
+      </Routes>
     </>
   );
 }
