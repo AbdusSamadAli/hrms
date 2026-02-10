@@ -1,27 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { markAttendance, getAttendance } from "../api/api";
 
 export default function Attendance() {
-  const [employeeId, setEmployeeId] = useState("");
+  const [employeeId, setEmployeeId] = useState(
+    localStorage.getItem("employeeId") || ""
+  );
   const [date, setDate] = useState("");
   const [status, setStatus] = useState("Present");
   const [records, setRecords] = useState([]);
   const [error, setError] = useState("");
 
+  async function loadAttendance(id) {
+    try {
+      const data = await getAttendance(id);
+      setRecords(data);
+    } catch {
+      setError("Failed to load attendance");
+    }
+  }
+
   async function submit() {
     setError("");
     try {
       await markAttendance({ employee_id: employeeId, date, status });
-      loadAttendance();
+      loadAttendance(employeeId);
     } catch (e) {
       setError(e.message);
     }
   }
 
-  async function loadAttendance() {
-    const data = await getAttendance(employeeId);
-    setRecords(data);
-  }
+  useEffect(() => {
+    if (employeeId) {
+      localStorage.setItem("employeeId", employeeId);
+      loadAttendance(employeeId);
+    }
+  }, [employeeId]);
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -72,10 +85,7 @@ export default function Attendance() {
 
           <ul className="space-y-2">
             {records.map((r) => (
-              <li
-                key={r.id}
-                className="flex justify-between border rounded p-2"
-              >
+              <li key={r.id} className="flex justify-between border rounded p-2">
                 <span>{r.date}</span>
                 <span
                   className={
